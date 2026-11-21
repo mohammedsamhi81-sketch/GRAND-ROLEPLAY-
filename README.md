@@ -1,2 +1,109 @@
-# GRAND-ROLEPLAY-
-GRAND PLAY is an ambitious Android open-world roleplay game project inspired by immersive mobile gaming experiences. Our goal is to build a realistic multiplayer world with vehicles, characters, police, criminal organizations, jobs, missions, and interactive environments. Developed with passion for mobile gamers.
+# CRMP Mobile
+
+Лаунчер и каркас клиента для подключения к серверам **CRMP / SA-MP** на Android.
+
+> **Важно:** это чистая (clean-room) реализация-заготовка. В репозитории **нет** ассетов GTA San Andreas, OBB, взломанных APK и проприетарных бинарников Black Russia / иных закрытых клиентов.
+
+## Возможности (v0.1.4)
+
+- Экран **Главная** — быстрый запуск на выбранный сервер, кнопка «Скачать кэш»
+- Экран **Серверы** — список, избранное, добавление IP:порт
+- Экран **Настройки** — ник, URL кэша/данных, загрузка кэша с прогрессом
+- Экран **О приложении**
+- **Загрузка игрового кэша** по пользовательскому HTTPS/HTTP URL:
+  - прогресс (% и байты), отмена, сообщения об ошибках на русском
+  - сохранение в app-specific каталог (`getExternalFilesDir` → `game_cache`)
+  - автораспаковка `.zip`
+  - перезапись + повтор (resume — по возможности позже)
+- Модуль `:client` с JNI/C++ stubs и API `NativeClient.launch(server, nick)`
+
+## Юридическая оговорка
+
+Вы **обязаны** владеть легальной копией данных GTA: San Andreas (или иным разрешённым источником игровых файлов).  
+Этот проект **не** распространяет и **не** содержит игровые данные Rockstar Games.  
+Подключайтесь только к серверам, на которых вам разрешено играть. Авторы не несут ответственности за нарушение лицензий третьих лиц.
+
+### Кэш / данные — только свой хостинг
+
+URL в настройках (`cacheUrl` / `dataUrl`) по умолчанию — **плейсхолдеры** `https://example.com/...`.  
+Вы должны **самостоятельно** разместить свой легальный кэш на HTTPS/HTTP-хостинге и указать URL в приложении.  
+Лаунчер только скачивает то, что вы настроили; он **не** бандлит и **не** скачивает ассеты Rockstar за вас.
+
+## Требования
+
+- Android Studio Hedgehog / Iguana или новее (или JDK 17 + Android SDK 34)
+- Android SDK Platform 34, Build-Tools 34
+- NDK 26.x и CMake 3.22+ (для модуля `:client`)
+- minSdk 26
+
+## Сборка
+
+### Android Studio
+
+1. Откройте папку проекта в Android Studio.
+2. Дождитесь синхронизации Gradle.
+3. Укажите SDK в `local.properties` при необходимости:
+   ```properties
+   sdk.dir=/path/to/Android/Sdk
+   ```
+4. Run → `app` (debug).
+
+### Командная строка
+
+```bash
+# из корня репозитория
+chmod +x gradlew
+./gradlew assembleDebug
+```
+
+APK: `app/build/outputs/apk/debug/app-debug.apk`
+
+```bash
+./gradlew assembleRelease   # без подписи store — для локальной проверки
+```
+
+## Как указать сервер SA-MP / CRMP
+
+1. Откройте вкладку **Серверы**.
+2. Нажмите «Добавить сервер».
+3. Введите IP (или хост) и порт (по умолчанию для SA-MP часто `7777`).
+4. При необходимости отметьте сервер как избранный.
+5. На **Главной** выберите сервер и нажмите «Играть».
+
+## Как скачать кэш
+
+1. В **Настройках** укажите URL вашего `cache.zip` (или иного файла) на своём хостинге.
+2. Нажмите «Сохранить URL кэша», затем «Скачать кэш» (кнопка также на **Главной**).
+3. Дождитесь прогресса или нажмите «Отмена».
+4. Файлы появятся в app-specific хранилище:  
+   `Android/data/com.crmp.mobile/files/game_cache/`  
+   (permission на запись во внешнее хранилище не требуется на API 29+; используется `getExternalFilesDir`).
+
+## Архитектура
+
+| Модуль   | Назначение                                      |
+|----------|-------------------------------------------------|
+| `:app`   | Jetpack Compose UI лаунчера                     |
+| `:client`| JNI/C++ заглушки, `NativeClient`                |
+
+### Native API
+
+```kotlin
+NativeClient.launch(serverHostPort: String, nickname: String): Int
+```
+
+Возвращает код результата; реализация в `client/src/main/cpp/` помечена TODO.
+
+## Что намеренно отсутствует
+
+- Файлы `.img` / `.txd` / OBB GTA SA
+- Проприетарные `.so` чужих клиентов
+- Обход DRM / «пиратские» APK
+
+## Лицензия
+
+MIT — см. [LICENSE](LICENSE).
+
+## Авторы
+
+GitHub: [Alxtv843](https://github.com/Alxtv843) · CRMP Mobile scaffold
